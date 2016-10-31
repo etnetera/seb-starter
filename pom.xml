@@ -27,13 +27,7 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>cz.etnetera</groupId>
-            <artifactId>reesmo-adapter-junit-seb</artifactId>
-            <version>0.2.1</version>
-            <scope>test</scope>
-        </dependency>
+        
     </dependencies>
 
     <build>
