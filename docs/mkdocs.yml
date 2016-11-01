@@ -1,0 +1,9 @@
+site_name: Seb-starter
+pages:
+- Structure: index.md
+- BasicSebConfiguration: BasicSebConfiguration.md
+- Seb: seb.md
+- Page: page.md
+- SebElement & Module: sebelement-module.md
+- Logic: logic.md
+theme: readthedocs
