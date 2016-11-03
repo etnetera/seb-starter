@@ -1,0 +1,154 @@
+{
+    "docs": [
+        {
+            "location": "/",
+            "text": "Introduction\n\n\nSeb is framework extending function of Selenium. It is based on Groovy framework called \nGeb\n. Before going into this documentation we advice to go through \nSelenium Webdriver documentation\n first to understand basic concepts.\n\n\nDependency\n\n\nYou can add dependency by using Maven:\n\n\n<dependency>\n    <groupId>cz.etnetera</groupId>\n    <artifactId>seb</artifactId>\n    <version>0.5.1</version>\n</dependency>\n\n\n\nBasic components\n\n\n\n\n\n\nBasicSebConfiguration\n - Config class used to start Seb.\n\n\nSebContext\n - Common interface for providing Seb-related methods and stacking different components one on another. Usually not used directly.\n\n\nSebElement\n - Wraps traditional WebElement from Selenium.\n\n\nModule\n - Class containing other SebElements/Modules.\n\n\nSeb\n - Wrapper for Selenium WebDriver (or more specifically EventFiringWebDriver).\n\n\nLogic\n - Class containing sequence of commonly used actions going through multiple pages.\n\n\nPage\n - Representation of PageObject.\n\n\n\n\n\n\nLocating elements\n\n\nIntegral part of writing automatic tests is locating the elements on the page so you can interact with them. In best case you can use element name or id. If none of them is provided you have to use CSS selectors (preferably) or XPath (which is slightly slower due to the fact that unlike CSS selectors, it can query upwards - from child to parent element)\n\n\nCSS Selectors\n \n\n\nXPath\n\n\nSkeleton project\n\n\nFor quick start you can clone skeleton project from \ngithub\n.",
+            "title": "Introduction"
+        },
+        {
+            "location": "/#introduction",
+            "text": "Seb is framework extending function of Selenium. It is based on Groovy framework called  Geb . Before going into this documentation we advice to go through  Selenium Webdriver documentation  first to understand basic concepts.",
+            "title": "Introduction"
+        },
+        {
+            "location": "/#dependency",
+            "text": "You can add dependency by using Maven:  <dependency>\n    <groupId>cz.etnetera</groupId>\n    <artifactId>seb</artifactId>\n    <version>0.5.1</version>\n</dependency>",
+            "title": "Dependency"
+        },
+        {
+            "location": "/#basic-components",
+            "text": "BasicSebConfiguration  - Config class used to start Seb.  SebContext  - Common interface for providing Seb-related methods and stacking different components one on another. Usually not used directly.  SebElement  - Wraps traditional WebElement from Selenium.  Module  - Class containing other SebElements/Modules.  Seb  - Wrapper for Selenium WebDriver (or more specifically EventFiringWebDriver).  Logic  - Class containing sequence of commonly used actions going through multiple pages.  Page  - Representation of PageObject.",
+            "title": "Basic components"
+        },
+        {
+            "location": "/#locating-elements",
+            "text": "Integral part of writing automatic tests is locating the elements on the page so you can interact with them. In best case you can use element name or id. If none of them is provided you have to use CSS selectors (preferably) or XPath (which is slightly slower due to the fact that unlike CSS selectors, it can query upwards - from child to parent element)  CSS Selectors    XPath",
+            "title": "Locating elements"
+        },
+        {
+            "location": "/#skeleton-project",
+            "text": "For quick start you can clone skeleton project from  github .",
+            "title": "Skeleton project"
+        },
+        {
+            "location": "/2_basicSebConfiguration/",
+            "text": "Basic function\n\n\nBasic function of this class is to provide setup for instance of Seb. Most important property is \nList<PropertiesValue> propertiesHolder\n \nwhich holds the hierarchy of values. You usually do not interact with it directly. \nPropertiesValue\n class is identified by a key and holds set of properties. Mostly you will use method \n.getProperty(String)\n which will search through it.\nIf some values are defined more than once, higher placed \nPropertiesValue\n instances take precedence before the lower once. By default \npropertiesHolder\n is populated on instantiation from \nsystem properties\n with \nkey \nsystem\n and from file \nseb.properties\n with key \ndefault\n.\n\n\nOverride | extend default config\n\n\nUsually you will want to provide custom settings. You can do that by extending class \nBasicSebConfiguration\n and overriding its methods. To load other than default property file use any mutation of \n\naddResourceProperties*()\n method which can add \nPropertiesValue\n instance before/after \nPropertiesValue\n or at the end of \npropertiesHolder\n. \nFo example, if you want to have different setup for different environments consider following example: \n\n\nseb.properties: // 2\n    environment=prod\n\nBasicSebConfig:\n    public Environment getEnvironment() {  // 3\n        return getProperty(\"environment\");\n    }\n\n    @Override\n    public void init() {\n        super.init();\n        addResourcePropertiesAfter(\"system\", \"env\", \"seb.\" + getEnvironment() + \".properties\");  // 4\n    }\n\n\n\n1) First you create \nseb.dev.properties\n and \nseb.prod.properties\n. Each with different \nseb.baseUrl\n property value.\n\n\n2) Choose the environment you want to load by specifying property \nenvironment\n in seb.properties (as shown above) or by providing it to JVM directly by calling \n-Denvironment=prod\n. If you specify property in both, JVM properties will take precedence as explained in previous section.\n\n\n3) Retrieve the specified environment during the runtime.\n\n\n4) Using retrieved value load the specific property file into \npropertiesHolder\n and place it after \nPropertiesValue\n with key \"system\". Method \ninit()\n gets called on Seb startup.\n\n\nThis creates \npropertiesHolder\n with following structure:\n\n\n\n\n\"system\" - JVM properties loaded by default \n\n\n\"env\" - values from seb.prod.properties specified by us \n\n\n\"default\" - values from seb.properties loaded by default \n\n\n\n\nWe advice to use more specific property names than \nenvironment\n used above to avoid collision. \n\n\nMinimal setup\n\n\nMinimal setup for start requires \nseb.baseUrl\n property specified at any \npropertiesHolder\n level.\n\n\nExample: seb.baseUrl=http://www.etnetera.cz/\n\n\n\nIt is important to provide whole address including http/https! This value will be used in combination with value provided on PageObject to navigate to specific URL.\n\n\nLogging\n\n\nIf \nisDefaultReported()\n set to true, by default logs will be saved into seb-reports folder. If you want to include any additional files you can do so by calling\nany mutation of method \n.saveFile()\n where you can provide input in form of File, byte[] or String.\n\n\nOther important methods\n\n\n\n\ngetDefaultDriver()\n - override to create other than default (=Firefox) driver\n\n\ngetDefaultHubUrl()\n - override this to provide HubUrl (or provide seb.hubUrl property)\n\n\ngetDefaultCapabilities()\n - override this to provide capabilities to start WebDriver with (or provide seb.caps.* property => seb.caps.acceptSslCerts=true will be translated to \ncapabilities.setCapability(\"acceptSslCerts\", true)\n)",
+            "title": "BasicSebConfiguration"
+        },
+        {
+            "location": "/2_basicSebConfiguration/#basic-function",
+            "text": "Basic function of this class is to provide setup for instance of Seb. Most important property is  List<PropertiesValue> propertiesHolder  \nwhich holds the hierarchy of values. You usually do not interact with it directly.  PropertiesValue  class is identified by a key and holds set of properties. Mostly you will use method  .getProperty(String)  which will search through it.\nIf some values are defined more than once, higher placed  PropertiesValue  instances take precedence before the lower once. By default  propertiesHolder  is populated on instantiation from  system properties  with \nkey  system  and from file  seb.properties  with key  default .",
+            "title": "Basic function"
+        },
+        {
+            "location": "/2_basicSebConfiguration/#override-extend-default-config",
+            "text": "Usually you will want to provide custom settings. You can do that by extending class  BasicSebConfiguration  and overriding its methods. To load other than default property file use any mutation of  addResourceProperties*()  method which can add  PropertiesValue  instance before/after  PropertiesValue  or at the end of  propertiesHolder . \nFo example, if you want to have different setup for different environments consider following example:   seb.properties: // 2\n    environment=prod\n\nBasicSebConfig:\n    public Environment getEnvironment() {  // 3\n        return getProperty(\"environment\");\n    }\n\n    @Override\n    public void init() {\n        super.init();\n        addResourcePropertiesAfter(\"system\", \"env\", \"seb.\" + getEnvironment() + \".properties\");  // 4\n    }  1) First you create  seb.dev.properties  and  seb.prod.properties . Each with different  seb.baseUrl  property value.  2) Choose the environment you want to load by specifying property  environment  in seb.properties (as shown above) or by providing it to JVM directly by calling  -Denvironment=prod . If you specify property in both, JVM properties will take precedence as explained in previous section.  3) Retrieve the specified environment during the runtime.  4) Using retrieved value load the specific property file into  propertiesHolder  and place it after  PropertiesValue  with key \"system\". Method  init()  gets called on Seb startup.  This creates  propertiesHolder  with following structure:   \"system\" - JVM properties loaded by default   \"env\" - values from seb.prod.properties specified by us   \"default\" - values from seb.properties loaded by default    We advice to use more specific property names than  environment  used above to avoid collision.",
+            "title": "Override | extend default config"
+        },
+        {
+            "location": "/2_basicSebConfiguration/#minimal-setup",
+            "text": "Minimal setup for start requires  seb.baseUrl  property specified at any  propertiesHolder  level.  Example: seb.baseUrl=http://www.etnetera.cz/  It is important to provide whole address including http/https! This value will be used in combination with value provided on PageObject to navigate to specific URL.",
+            "title": "Minimal setup"
+        },
+        {
+            "location": "/2_basicSebConfiguration/#logging",
+            "text": "If  isDefaultReported()  set to true, by default logs will be saved into seb-reports folder. If you want to include any additional files you can do so by calling\nany mutation of method  .saveFile()  where you can provide input in form of File, byte[] or String.",
+            "title": "Logging"
+        },
+        {
+            "location": "/2_basicSebConfiguration/#other-important-methods",
+            "text": "getDefaultDriver()  - override to create other than default (=Firefox) driver  getDefaultHubUrl()  - override this to provide HubUrl (or provide seb.hubUrl property)  getDefaultCapabilities()  - override this to provide capabilities to start WebDriver with (or provide seb.caps.* property => seb.caps.acceptSslCerts=true will be translated to  capabilities.setCapability(\"acceptSslCerts\", true) )",
+            "title": "Other important methods"
+        },
+        {
+            "location": "/3_seb/",
+            "text": "Description\n\n\nAs the name suggests Seb is a core class of the whole framework. It contains methods to \nconstruct Pages and Logic, find elements in different contexts (= elements, modules or pages), navigate to pages and many more.\n\n\nStart and quit\n\n\nFavourable attitude using JUnit is to create base class for all your tests where you specify setUp and tearDown method and than extend it with classes containing specific tests.\nBase class might look like this:\n\n\npublic class Sebtest {\n    protected Seb seb;\n\n    @Before\n    public void before() {\n        seb = new Seb(true).withConfiguration(SebConfig.class).start();\n    }\n\n    @After\n    public void before() {\n        seb.quit();\n    }\n}\n\n\n\nThis starts new instance of Seb before every test and close it after test is done. \nnew Seb(true)\n is for start with custom config which we provide in next step \n.withConfiguration(SebConfig.class)\n.\nSeb handles instantiation of config class for you. Finally we have to call \n.start()\n to init configuration, listeners and wrapped driver. At this point Seb is ready to be used.\n\n\nDefault start\n - for quick start u can simply start Seb by calling \nnew Seb()\n - this will use default BasicSebConfiguration class and start",
+            "title": "Seb"
+        },
+        {
+            "location": "/3_seb/#description",
+            "text": "As the name suggests Seb is a core class of the whole framework. It contains methods to \nconstruct Pages and Logic, find elements in different contexts (= elements, modules or pages), navigate to pages and many more.",
+            "title": "Description"
+        },
+        {
+            "location": "/3_seb/#start-and-quit",
+            "text": "Favourable attitude using JUnit is to create base class for all your tests where you specify setUp and tearDown method and than extend it with classes containing specific tests.\nBase class might look like this:  public class Sebtest {\n    protected Seb seb;\n\n    @Before\n    public void before() {\n        seb = new Seb(true).withConfiguration(SebConfig.class).start();\n    }\n\n    @After\n    public void before() {\n        seb.quit();\n    }\n}  This starts new instance of Seb before every test and close it after test is done.  new Seb(true)  is for start with custom config which we provide in next step  .withConfiguration(SebConfig.class) .\nSeb handles instantiation of config class for you. Finally we have to call  .start()  to init configuration, listeners and wrapped driver. At this point Seb is ready to be used.  Default start  - for quick start u can simply start Seb by calling  new Seb()  - this will use default BasicSebConfiguration class and start",
+            "title": "Start and quit"
+        },
+        {
+            "location": "/4_page/",
+            "text": "Definition\n\n\nTo create representation of the page extend class \nPage\n. Then populate it variables the same way as you would in traditional Selenium PageOject.\n\n\n@PageConfig(uri = \"/\")\npublic class HomePage extends Page {\n\n    @FindBy(id = \"header\")\n    protected SebElement header;\n\n    @FindBy(tagName = \"a\")\n    protected List<SebElement> links;\n\n}\n\n\n\nInstantiation\n\n\nYou get instance of page usually by calling \n.initPage(HomePage.class)\n, if you were redirected to a new page by interacting with the previous one,\nor by navigating directly with \nseb.goTo(HomePage.class)\n. On the background Seb will create an instance for you and configure it from annotation @PageConfig and config retrieved from Seb instance.\n\n\n@PageConfig annotation\n\n\nUse this annotation on PageObject to provide additional setup. Usually you will use attribute \nuri\n, which will be combined with seb.baseUrl from properties\nto get URL of the page. Alternatively for dynamic creation of the address you can override method \ngetUrl()\n\n\nManaging instantiation\n\n\nConvenient methods for managing instantiation are provided:\n\n\n\n\nbeforeInit()\n\n\nbeforeInitElements()\n\n\nafterInitElements()\n - before here any attempt to work with Page elements will result in NullPointerException\n\n\nbeforeSetup()\n\n\nsetup()\n - use this method to setup other than SebElement values. For example to have prepared page title in form of String rather than retrieve it from SebElement everytime its needed.\n\n\nafterSetup()\n\n\nbeforeVerify()\n\n\nverify()\n\n\nafterVerify()",
+            "title": "Page"
+        },
+        {
+            "location": "/4_page/#definition",
+            "text": "To create representation of the page extend class  Page . Then populate it variables the same way as you would in traditional Selenium PageOject.  @PageConfig(uri = \"/\")\npublic class HomePage extends Page {\n\n    @FindBy(id = \"header\")\n    protected SebElement header;\n\n    @FindBy(tagName = \"a\")\n    protected List<SebElement> links;\n\n}",
+            "title": "Definition"
+        },
+        {
+            "location": "/4_page/#instantiation",
+            "text": "You get instance of page usually by calling  .initPage(HomePage.class) , if you were redirected to a new page by interacting with the previous one,\nor by navigating directly with  seb.goTo(HomePage.class) . On the background Seb will create an instance for you and configure it from annotation @PageConfig and config retrieved from Seb instance.",
+            "title": "Instantiation"
+        },
+        {
+            "location": "/4_page/#pageconfig-annotation",
+            "text": "Use this annotation on PageObject to provide additional setup. Usually you will use attribute  uri , which will be combined with seb.baseUrl from properties\nto get URL of the page. Alternatively for dynamic creation of the address you can override method  getUrl()",
+            "title": "@PageConfig annotation"
+        },
+        {
+            "location": "/4_page/#managing-instantiation",
+            "text": "Convenient methods for managing instantiation are provided:   beforeInit()  beforeInitElements()  afterInitElements()  - before here any attempt to work with Page elements will result in NullPointerException  beforeSetup()  setup()  - use this method to setup other than SebElement values. For example to have prepared page title in form of String rather than retrieve it from SebElement everytime its needed.  afterSetup()  beforeVerify()  verify()  afterVerify()",
+            "title": "Managing instantiation"
+        },
+        {
+            "location": "/5_sebelement-module/",
+            "text": "SebElement\n\n\nSeb version of Selenium WebElement.\n\n\nModule\n\n\nModule is similar to SebElement. However unlike SebElement, Module can contain multiple other SebElements/Modules. To define some simply extend Module class and define its\nelements same as you would on PageObject. Other than that, you can treat it like normal element. You can use it on any page or module:\n\n\n@FindBy(id = \"header\")\nprotected HeaderModule header;\n\n\n\nOr find it by using method \n.findOne(By.id(\"header\"), HeaderModule.class)\n.",
+            "title": "SebElement & Module"
+        },
+        {
+            "location": "/5_sebelement-module/#sebelement",
+            "text": "Seb version of Selenium WebElement.",
+            "title": "SebElement"
+        },
+        {
+            "location": "/5_sebelement-module/#module",
+            "text": "Module is similar to SebElement. However unlike SebElement, Module can contain multiple other SebElements/Modules. To define some simply extend Module class and define its\nelements same as you would on PageObject. Other than that, you can treat it like normal element. You can use it on any page or module:  @FindBy(id = \"header\")\nprotected HeaderModule header;  Or find it by using method  .findOne(By.id(\"header\"), HeaderModule.class) .",
+            "title": "Module"
+        },
+        {
+            "location": "/6_logic/",
+            "text": "Description\n\n\nUsed to hold common actions which might be required in different contexts. If you have for example multiple pages sharing the same functionality \nwe advice you to rather create a parent PageObject which will hold it rather than using Logic class.\n\n\nUsage\n\n\nTraditional example is login. See this example:\n\n\npublic class UserLogic extends Logic {\n\n    public UserExtraPage login(String login, String password) {\n        if (!isAt(BaseLayoutPage.class)) goTo(HomePage.class);\n        return getPage(HomePage.class).login(login, password);\n    }\n\n}\n\n\n\nAssuming that you have previously created BaseLayoutPage containing method for login and HomePage is its child, you can then call snippet \nbelow from anywhere in your test to login:\n\n\nseb.initLogic(UserLogic.class).login(\"user\", \"password\")\n\n\n\nSeb will first evaluate if you are on any subclass of BaseLayoutPage. If not, it will navigate to Homepage and login.",
+            "title": "Logic"
+        },
+        {
+            "location": "/6_logic/#description",
+            "text": "Used to hold common actions which might be required in different contexts. If you have for example multiple pages sharing the same functionality \nwe advice you to rather create a parent PageObject which will hold it rather than using Logic class.",
+            "title": "Description"
+        },
+        {
+            "location": "/6_logic/#usage",
+            "text": "Traditional example is login. See this example:  public class UserLogic extends Logic {\n\n    public UserExtraPage login(String login, String password) {\n        if (!isAt(BaseLayoutPage.class)) goTo(HomePage.class);\n        return getPage(HomePage.class).login(login, password);\n    }\n\n}  Assuming that you have previously created BaseLayoutPage containing method for login and HomePage is its child, you can then call snippet \nbelow from anywhere in your test to login:  seb.initLogic(UserLogic.class).login(\"user\", \"password\")  Seb will first evaluate if you are on any subclass of BaseLayoutPage. If not, it will navigate to Homepage and login.",
+            "title": "Usage"
+        },
+        {
+            "location": "/7_sebContext/",
+            "text": "Description\n\n\nInterface providing common methods for all the objects on the page - elements, modules and whole page.\n\n\nImportant methods\n\n\n\n\ncontext.initPage(T extends Page)\n - provide any class that extends Page class. Seb will automatically initiate it and cache it. Example: \nseb.initPage(HomePage.class)\n   \n\n\ncontext.initLogic(T extends Logic)\n - provide any class that extends Logic class. Seb will automatically initiate it. Example: \nseb.initLogic(LoginLogic.class)\n\n\ncontext.goTo(T extends Page)\n - provide any class that extends Page class. Seb will automatically initiate it. Navigate to its URL and cahce it.\n\n\ncontext.isAt(T extends Page)\n - provide any class that extends Page class. Seb will find out if given Page is same/subclass of cached Page.\n\n\ncontext.findOne()\n - Seb will search given context for specified SebElement. Example: \nhomePage.findOne(By.id(\"username\"))\n\n\n\n\nData holding\n\n\nEvery subclass of SebContext supports data holding. It is particularly useful when you create your test with Cucumber or\nany other BDD framework which does not allow sharing variables between different steps out of the box. With this functionality\nyou can add data to Seb at some step with method \n.addData(String, Object)\n and then retrieve them at other step by calling \n.getData(String, Class<T>)\n.\ndata will also be casted into specified type.",
+            "title": "SebContext"
+        },
+        {
+            "location": "/7_sebContext/#description",
+            "text": "Interface providing common methods for all the objects on the page - elements, modules and whole page.",
+            "title": "Description"
+        },
+        {
+            "location": "/7_sebContext/#important-methods",
+            "text": "context.initPage(T extends Page)  - provide any class that extends Page class. Seb will automatically initiate it and cache it. Example:  seb.initPage(HomePage.class)      context.initLogic(T extends Logic)  - provide any class that extends Logic class. Seb will automatically initiate it. Example:  seb.initLogic(LoginLogic.class)  context.goTo(T extends Page)  - provide any class that extends Page class. Seb will automatically initiate it. Navigate to its URL and cahce it.  context.isAt(T extends Page)  - provide any class that extends Page class. Seb will find out if given Page is same/subclass of cached Page.  context.findOne()  - Seb will search given context for specified SebElement. Example:  homePage.findOne(By.id(\"username\"))",
+            "title": "Important methods"
+        },
+        {
+            "location": "/7_sebContext/#data-holding",
+            "text": "Every subclass of SebContext supports data holding. It is particularly useful when you create your test with Cucumber or\nany other BDD framework which does not allow sharing variables between different steps out of the box. With this functionality\nyou can add data to Seb at some step with method  .addData(String, Object)  and then retrieve them at other step by calling  .getData(String, Class<T>) .\ndata will also be casted into specified type.",
+            "title": "Data holding"
+        }
+    ]
+}
