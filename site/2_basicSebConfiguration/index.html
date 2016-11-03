@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <title>BasicSebConfiguration - Seb</title>
+  
+
+  <link rel="shortcut icon" href="../img/favicon.ico">
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "BasicSebConfiguration";
+    var mkdocs_page_input_path = "2_basicSebConfiguration.md";
+    var mkdocs_page_url = "/2_basicSebConfiguration/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script>
+  <script src="../js/theme.js"></script> 
+
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Seb</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="..">Introduction</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">BasicSebConfiguration</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#basic-function">Basic function</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#override-extend-default-config">Override | extend default config</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#minimal-setup">Minimal setup</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#logging">Logging</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#other-important-methods">Other important methods</a></li>
+                
+            
+            </ul>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../3_seb/">Seb</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../4_page/">Page</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../5_sebelement-module/">SebElement & Module</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../6_logic/">Logic</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../7_sebContext/">SebContext</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Seb</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>BasicSebConfiguration</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="basic-function">Basic function</h2>
+<p>Basic function of this class is to provide setup for instance of Seb. Most important property is <code>List&lt;PropertiesValue&gt; propertiesHolder</code> 
+which holds the hierarchy of values. You usually do not interact with it directly. <code>PropertiesValue</code> class is identified by a key and holds set of properties. Mostly you will use method <code>.getProperty(String)</code> which will search through it.
+If some values are defined more than once, higher placed <code>PropertiesValue</code> instances take precedence before the lower once. By default <code>propertiesHolder</code> is populated on instantiation from <code>system properties</code> with 
+key <code>system</code> and from file <code>seb.properties</code> with key <code>default</code>.</p>
+<h2 id="override-extend-default-config">Override | extend default config</h2>
+<p>Usually you will want to provide custom settings. You can do that by extending class <code>BasicSebConfiguration</code> and overriding its methods. To load other than default property file use any mutation of 
+<code>addResourceProperties*()</code> method which can add <code>PropertiesValue</code> instance before/after <code>PropertiesValue</code> or at the end of <code>propertiesHolder</code>. 
+Fo example, if you want to have different setup for different environments consider following example: </p>
+<pre><code>seb.properties: // 2
+    environment=prod
+
+BasicSebConfig:
+    public Environment getEnvironment() {  // 3
+        return getProperty("environment");
+    }
+
+    @Override
+    public void init() {
+        super.init();
+        addResourcePropertiesAfter("system", "env", "seb." + getEnvironment() + ".properties");  // 4
+    }
+</code></pre>
+<p>1) First you create <code>seb.dev.properties</code> and <code>seb.prod.properties</code>. Each with different <code>seb.baseUrl</code> property value.</p>
+<p>2) Choose the environment you want to load by specifying property <code>environment</code> in seb.properties (as shown above) or by providing it to JVM directly by calling <code>-Denvironment=prod</code>. If you specify property in both, JVM properties will take precedence as explained in previous section.</p>
+<p>3) Retrieve the specified environment during the runtime.</p>
+<p>4) Using retrieved value load the specific property file into <code>propertiesHolder</code> and place it after <code>PropertiesValue</code> with key "system". Method <code>init()</code> gets called on Seb startup.</p>
+<p>This creates <code>propertiesHolder</code> with following structure:</p>
+<ul>
+<li>"system" - JVM properties loaded by default </li>
+<li>"env" - values from seb.prod.properties specified by us </li>
+<li>"default" - values from seb.properties loaded by default </li>
+</ul>
+<p>We advice to use more specific property names than <code>environment</code> used above to avoid collision. </p>
+<h2 id="minimal-setup">Minimal setup</h2>
+<p>Minimal setup for start requires <code>seb.baseUrl</code> property specified at any <code>propertiesHolder</code> level.</p>
+<pre><code>Example: seb.baseUrl=http://www.etnetera.cz/
+</code></pre>
+<p>It is important to provide whole address including http/https! This value will be used in combination with value provided on PageObject to navigate to specific URL.</p>
+<h2 id="logging">Logging</h2>
+<p>If <code>isDefaultReported()</code> set to true, by default logs will be saved into seb-reports folder. If you want to include any additional files you can do so by calling
+any mutation of method <code>.saveFile()</code> where you can provide input in form of File, byte[] or String.</p>
+<h2 id="other-important-methods">Other important methods</h2>
+<ul>
+<li><code>getDefaultDriver()</code> - override to create other than default (=Firefox) driver</li>
+<li><code>getDefaultHubUrl()</code> - override this to provide HubUrl (or provide seb.hubUrl property)</li>
+<li><code>getDefaultCapabilities()</code> - override this to provide capabilities to start WebDriver with (or provide seb.caps.* property =&gt; seb.caps.acceptSslCerts=true will be translated to <code>capabilities.setCapability("acceptSslCerts", true)</code>)</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../3_seb/" class="btn btn-neutral float-right" title="Seb">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href=".." class="btn btn-neutral" title="Introduction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+<div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../3_seb/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+
+</body>
+</html>
